@@ -230,8 +230,11 @@ def main():
                     a =  np.array([0.0, 0.0, 0.0])
                     old_class = curr_classif[0]
 
+
+
                 if actual_class_tar[0] != old_class_tar:
                     old_class_tar = actual_class_tar[0]
+                    actual_class_tar = None
 
 
             frame, r, done, info, car_frame,broke = env.step(a)

@@ -5,13 +5,18 @@ import os
 from copy import deepcopy
 
 
-def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_drown, steps,style_state, command=None, show_help=False, discrete = False, classf_name=None, save=False, helper = None, gcam_target = None):
+def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_drown, steps, style_state, command=None, show_help=False, discrete=False, classf_name=None, save=False, helper=None, gcam_target=None):
     win.switch_to()
     win.dispatch_events()
+
     if style_state.value == 2 or style_state.value == 4:
         color = (255, 255, 255, 255)
     else:
         color = (0, 0, 0, 255)
+
+    if helper[2]:
+        color = (0, 0, 0, 255)
+
     score_label = pyglet.text.Label(
         "%04i" % total_reward,
         font_size=15,
@@ -78,11 +83,11 @@ def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_dr
         # frame[201:231,138:150,2]=128
     if classf_name is not None:
         text = "Classifier: " + classf_name
-        classf =pyglet.text.Label(
+        classf = pyglet.text.Label(
             text,
             font_size=10,
             x=10,
-            y=height - 50 - 25 * (len(help_list)+1),
+            y=height - 50 - 25 * (len(help_list) + 1),
             anchor_x="left",
             anchor_y="center",
             color=color,
@@ -91,11 +96,11 @@ def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_dr
 
     if gcam_target is not None:
         text = f"gradCAM target: {gcam_target}"
-        classf =pyglet.text.Label(
+        classf = pyglet.text.Label(
             text,
             font_size=10,
             x=10,
-            y=height - 50 - 25 * (len(help_list)+2),
+            y=height - 50 - 25 * (len(help_list) + 2),
             anchor_x="left",
             anchor_y="center",
             color=color,
@@ -143,28 +148,21 @@ def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_dr
             )
             command_label.draw()
 
-
     # save_name ="show_diff_styles"
     # if not os.path.exists(f"Slides/images_from_run/{save_name}"):
     #     os.makedirs("Slides/images_from_run/show_diff_styles")
     if save:
         frame = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
 
-
-
     # event
     win.flip()
     win.clear()
 
-
-
-
     # ffmpeg - framerate 60 - i   step_% 1d.png  output.mp4
-
-
 
     if save:
         return frame
+
 
 def create_dir(run_name, repetition, now):
     path = os.getcwd()
