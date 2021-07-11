@@ -100,9 +100,6 @@ conda install -c conda-forge nodejs
 jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib
 ```
 
-SSIM loss [https://github.com/Po-Hsun-Su/pytorch-ssim](https://github.com/Po-Hsun-Su/pytorch-ssim)
-
-
 FID comparrison
 ```shell
 pip install pytorch-fid
@@ -113,3 +110,4 @@ GradCAM [Class Activation Map methods implemented in Pytorch](https://github.com
 ```shell
 pip install grad-cam
 ```
+SSIM loss [https://github.com/Po-Hsun-Su/pytorch-ssim](https://github.com/Po-Hsun-Su/pytorch-ssim) is included.
