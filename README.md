@@ -5,12 +5,12 @@ Based on the [Contrastive Unpaired Translation (CUT)](https://github.com/taesung
 To pre-train the edge detection network use:
 
 ```python
- train.py -dataroot ./datasets/road_tree_new_train --name new_trees/edge_detection_MSE --batch_size 32 --dataset_mode "conditional" --model "edge"  --n_epochs 150 --display_freq 100 --output_nc 1 --ngf 16  --edge_loss "MSE"
+ styletransfer/cut/train.py -dataroot ./datasets/road_tree_new_train --name new_trees/edge_detection_MSE --batch_size 32 --dataset_mode "conditional" --model "edge"  --n_epochs 150 --display_freq 100 --output_nc 1 --ngf 16  --edge_loss "MSE"
 ```
 The edge detection model has to be present in the cut/checkpoint/experiment_name folder before training the style transfer model.
 To train the dual style transfer model use:
 ```python
- train.py --dataroot ./datasets/road_tree_new_train --name new_trees/styletransfer_MSE_histo_10_edges_10 --CUT_mode FastCUT --batch_size 4 --dataset_mode "conditional" --model "conditional_cut"  --netG "conditional_resnet_9" --netD "conditional" --display_freq 100 --lambda_hist 10 --lambda_edge 10 --edge_loss "MSE" --n_epochs 50
+ styletransfer/cut/train.py --dataroot ./datasets/road_tree_new_train --name new_trees/styletransfer_MSE_histo_10_edges_10 --CUT_mode FastCUT --batch_size 4 --dataset_mode "conditional" --model "conditional_cut"  --netG "conditional_resnet_9" --netD "conditional" --display_freq 100 --lambda_hist 10 --lambda_edge 10 --edge_loss "MSE" --n_epochs 50
 ```
 
 To run the simulation use 
