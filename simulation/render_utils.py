@@ -5,7 +5,7 @@ import os
 from copy import deepcopy
 
 
-def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_drown, steps, style_state, command=None, show_help=False, discrete=False, classf_name=None, save=False, helper=None, gcam_target=None):
+def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_drown, steps, style_state, command=None, show_help=False, discrete=False, classf_name=None, save=False, helper=None, gcam_target=None, comms=None):
     win.switch_to()
     win.dispatch_events()
 
@@ -62,7 +62,8 @@ def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_dr
                  "L: Toggle save (log)",
                  "E: Toggle endless mode",
                  "G: Toggle GradCAM",
-                 "H: change GradCAM layer"]
+                 "H: change GradCAM layer",
+                 "P: toggle pause"]
     if helper is not None:
         help_list += [f"Save {helper[0]}", f"Endless {helper[1]}"]
     if show_help:
@@ -106,6 +107,17 @@ def show_stuff(win, frame, width, height, total_reward, fps, car, car_already_dr
             color=color,
         )
         classf.draw()
+    if comms[2]:
+        pause = pyglet.text.Label(
+            "Paused",
+            font_size=40,
+            x=width/2 -80,
+            y=height - 40 / 2,
+            anchor_x="left",
+            anchor_y="center",
+            color=color,
+        )
+        pause.draw()
 
     if command is not None:
         if not discrete:

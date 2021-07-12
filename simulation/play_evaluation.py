@@ -51,7 +51,7 @@ def main():
     height = 800
     win = Window(width=width, height=height)
 
-    commands = [True, False]
+    commands = [True, False, False]
     extra_commands = [False, False, False] # Save, endless, GradCAM
     # isopen, restart
     # isopen = True
@@ -67,8 +67,8 @@ def main():
 
     CLASSIFIER_LIST = np.array([[None, "None"],
                                 ["../agent/out/new_dataset/Nvidia_model_bz_128_lr_0.001_ep_30/model_ep_9.pth", "OpenAI"],
-                                ["../agent/out/new_dataset/style_transfer/Nvidia_model_bz_128_lr_0.001_ep_30/style_green/model_ep_24.pth", "Green"],
                                 ["../agent/out/new_dataset/style_transfer/Nvidia_model_bz_128_lr_0.001_ep_30/style_brown/model_ep_6.pth", "Brown"],
+                                ["../agent/out/new_dataset/style_transfer/Nvidia_model_bz_128_lr_0.001_ep_30/style_green/model_ep_24.pth", "Green"],
                                 ["../agent/out/new_dataset/style_transfer/Nvidia_model_bz_128_lr_0.001_ep_30/style_mixed/model_ep_0.pth", "Mixed"]])
 
 
@@ -138,6 +138,8 @@ def main():
             extra_commands[2] = not extra_commands[2]
         if k == key.H:
             roll_ind[1] += 1
+        if k == key.P:
+            commands[2] = not commands[2]
 
 
     # env.viewer.window.on_key_press = key_press
@@ -169,161 +171,163 @@ def main():
         command = np.array([3])
         actual_class_tar = [None, None]
         while True:
-            start_time=time.time()
-            curr_classif = CLASSIFIER_LIST[roll_ind[0]% CLASSIFIER_LIST.shape[0]]
-            if curr_classif[0] is not None:
-                print("AD")
-                if curr_classif[0] != old_class:
-                    print(f"Loading {curr_classif[0]}")
-                    classifier = torch.load(curr_classif[0]).to(device)
-                    old_class = curr_classif[0]
-                    class_tar_list = np.array([[classifier.conv1, "conv1"],[classifier.conv2, "conv2"],[classifier.conv3, "conv3"],[classifier.conv4, "conv4"],[classifier.conv5, "conv5"]])
-                actual_class_tar = class_tar_list[roll_ind[1] % class_tar_list.shape[0]]
-                if actual_class_tar[0] != old_class_tar:
-                    cam = GradCAM(model=classifier, target_layer=actual_class_tar[0], use_cuda=True)
-                    old_class_tar = actual_class_tar[0]
+            if not commands[2]:
+                start_time=time.time()
+                curr_classif = CLASSIFIER_LIST[roll_ind[0]% CLASSIFIER_LIST.shape[0]]
+                if curr_classif[0] is not None:
+                    print("AD")
+                    if curr_classif[0] != old_class:
+                        print(f"Loading {curr_classif[0]}")
+                        classifier = torch.load(curr_classif[0]).to(device)
+                        old_class = curr_classif[0]
+                        class_tar_list = np.array([[classifier.conv1, "conv1"],[classifier.conv2, "conv2"],[classifier.conv3, "conv3"],[classifier.conv4, "conv4"],[classifier.conv5, "conv5"]])
+                    actual_class_tar = class_tar_list[roll_ind[1] % class_tar_list.shape[0]]
+                    if actual_class_tar[0] != old_class_tar:
+                        cam = GradCAM(model=classifier, target_layer=actual_class_tar[0], use_cuda=True)
+                        old_class_tar = actual_class_tar[0]
 
 
-                a = np.array([0.0, 0.0, 0.0])
-                if accel_count == 0:
-                    if steps == 0:
-                        a = np.array([0.0, 1.0, 0.0])
-                        start = False
-                    else:
-                        if command == 0:
-                            a[0] = -1.0  # -1.0
-                            break_count = 0
-                            left_count += 1
-                            right_count = 0
-                        elif command == 1:
-                            a[0] = 1.0  # +1.0
-                            break_count = 0
-                            left_count = 0
-                            right_count += 1
-                        elif command == 2:
-                            a[1] = +1.0  # +0.9
-                            break_count = 0
-                            left_count = 0
-                            right_count = 0
-                        elif command == 3:
-                            break_count += 1
-                            left_count = 0
-                            right_count = 0
-                            a[2] = +0.8
+                    a = np.array([0.0, 0.0, 0.0])
+
+                    if accel_count == 0:
+                        if steps == 0:
+                            a = np.array([0.0, 1.0, 0.0])
+                            start = False
                         else:
-                            print("Wrong input")
-                    if break_count >= 5 or left_count >= 25 or right_count >= 25:
-                        break_count = 0
-                        left_count = 0
-                        right_count = 0
+                            if command == 0:
+                                a[0] = -1.0  # -1.0
+                                break_count = 0
+                                left_count += 1
+                                right_count = 0
+                            elif command == 1:
+                                a[0] = 1.0  # +1.0
+                                break_count = 0
+                                left_count = 0
+                                right_count += 1
+                            elif command == 2:
+                                a[1] = +1.0  # +0.9
+                                break_count = 0
+                                left_count = 0
+                                right_count = 0
+                            elif command == 3:
+                                break_count += 1
+                                left_count = 0
+                                right_count = 0
+                                a[2] = +0.8
+                            else:
+                                print("Wrong input")
+                        if break_count >= 5 or left_count >= 25 or right_count >= 25:
+                            break_count = 0
+                            left_count = 0
+                            right_count = 0
 
-                        a = np.array([0.0, 1.0, 0.0])
-                        accel_count = 10
+                            a = np.array([0.0, 1.0, 0.0])
+                            accel_count = 10
+                            command = np.array([2])
+                    else:
+                        accel_count -= 1
                         command = np.array([2])
+                        a = np.array([0.0, 1.0, 0.0])
                 else:
-                    accel_count -= 1
-                    command = np.array([2])
-                    a = np.array([0.0, 1.0, 0.0])
-            else:
-                if curr_classif[0] != old_class:
-                    print("Reseting")
-                    a =  np.array([0.0, 0.0, 0.0])
-                    old_class = curr_classif[0]
+                    if curr_classif[0] != old_class:
+                        print("Reseting")
+                        a =  np.array([0.0, 0.0, 0.0])
+                        old_class = curr_classif[0]
 
 
 
-                if actual_class_tar[0] != old_class_tar:
-                    old_class_tar = actual_class_tar[0]
-                    actual_class_tar = None
+                    if actual_class_tar[0] != old_class_tar:
+                        old_class_tar = actual_class_tar[0]
+                        actual_class_tar = None
 
 
-            frame, r, done, info, car_frame,broke = env.step(a)
-            input_history.append(a)  # =np.vstack((input_history,a))
+                frame, r, done, info, car_frame,broke = env.step(a)
+                input_history.append(a)  # =np.vstack((input_history,a))
 
-            total_reward += r
+                total_reward += r
 
-            r_history.append(total_reward)  # = np.append(r_history,r)
-            if steps % 200 == 0 or done:
-                print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
-                print("step {} total_reward {:+0.2f}".format(steps, total_reward))
-            steps += 1
+                r_history.append(total_reward)  # = np.append(r_history,r)
+                if steps % 200 == 0 or done:
+                    print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
+                    print("step {} total_reward {:+0.2f}".format(steps, total_reward))
+                steps += 1
 
-            # landscape-tree-water = env.render(mode="state_pixels", draw_car=False)[:-12, :]
-            # road_frames.append(landscape-tree-water)
+                # landscape-tree-water = env.render(mode="state_pixels", draw_car=False)[:-12, :]
+                # road_frames.append(landscape-tree-water)
 
-            # frame=cv2.resize(frame, dsize=(96, 96), interpolation=cv2.INTER_CUBIC)
-            #frames.append(frame)  # frames = np.vstack((frames,frame[None,:,:,:]))
-            # env.render()
-            new_frame = np.copy(frame)
-            status_bar = new_frame[257:]
-            new_frame = new_frame[:256, :256]
-            car_frame = np.copy(car_frame)[:256, :256]
+                # frame=cv2.resize(frame, dsize=(96, 96), interpolation=cv2.INTER_CUBIC)
+                #frames.append(frame)  # frames = np.vstack((frames,frame[None,:,:,:]))
+                # env.render()
+                new_frame = np.copy(frame)
+                status_bar = new_frame[257:]
+                new_frame = new_frame[:256, :256]
+                car_frame = np.copy(car_frame)[:256, :256]
 
-            #new_frame = new_frame + 0.0001 * np.random.normal(0, 1, (new_frame.shape[0],new_frame.shape[1], 3))
+                #new_frame = new_frame + 0.0001 * np.random.normal(0, 1, (new_frame.shape[0],new_frame.shape[1], 3))
 
-            if style_state == StyleStates.STYLE_1:
-                new_frame = generate(model, new_frame, a=0,b=1)
-            elif style_state == StyleStates.STYLE_2:
-                new_frame = generate(model, new_frame, a=1, b=0)
-            elif style_state == StyleStates.SPLIT_1:
-                gen_frame = generate(model, new_frame, a=0, b=1)
-                new_frame = np.stack([np.tril(gen_frame[:,:,i], -1) + np.triu(new_frame[:, :, i]) for i in range(3)],
-                                     axis=-1)
-            elif style_state == StyleStates.SPLIT_2:
-                gen_frame = generate(model, new_frame, a=1, b=0)
-                new_frame = np.stack([np.tril(gen_frame[:,:,i], -1) + np.triu(new_frame[:, :, i]) for i in range(3)],
-                                     axis=-1)
-            elif style_state == StyleStates.MIXED:
-                step = step + 1
+                if style_state == StyleStates.STYLE_1:
+                    new_frame = generate(model, new_frame, a=0,b=1)
+                elif style_state == StyleStates.STYLE_2:
+                    new_frame = generate(model, new_frame, a=1, b=0)
+                elif style_state == StyleStates.SPLIT_1:
+                    gen_frame = generate(model, new_frame, a=0, b=1)
+                    new_frame = np.stack([np.tril(gen_frame[:,:,i], -1) + np.triu(new_frame[:, :, i]) for i in range(3)],
+                                         axis=-1)
+                elif style_state == StyleStates.SPLIT_2:
+                    gen_frame = generate(model, new_frame, a=1, b=0)
+                    new_frame = np.stack([np.tril(gen_frame[:,:,i], -1) + np.triu(new_frame[:, :, i]) for i in range(3)],
+                                         axis=-1)
+                elif style_state == StyleStates.MIXED:
+                    step = step + 1
 
-                st[interpolate_dir] = 1 - step / 100
-                st[1 - interpolate_dir] = step / 100
-                if step >= 100:
-                    step = 0
-                    interpolate_dir = 1 - interpolate_dir
+                    st[interpolate_dir] = 1 - step / 100
+                    st[1 - interpolate_dir] = step / 100
+                    if step >= 100:
+                        step = 0
+                        interpolate_dir = 1 - interpolate_dir
 
-                new_frame = generate(model, new_frame, a=st[0], b=st[1])
+                    new_frame = generate(model, new_frame, a=st[0], b=st[1])
 
 
-            new_frame = np.vstack((new_frame, status_bar))
+                new_frame = np.vstack((new_frame, status_bar))
 
-            new_frame[201:230, 120:136][np.where(np.sum(car_frame[201:230, 120:136] == [204, 0, 0], axis=2) == 3)] = [204, 0, 0]
-            new_frame[201:230, 120:136][np.where(np.sum(car_frame[201:230, 120:136] == [76, 76, 76], axis=2) == 3)] = [76, 76, 76]
-            new_frame[201:230, 120:136][np.where(np.sum(car_frame[201:230, 120:136] == [0, 0, 0], axis=2) == 3)] = [0, 0, 0]
+                new_frame[201:230, 120:136][np.where(np.sum(car_frame[201:230, 120:136] == [204, 0, 0], axis=2) == 3)] = [204, 0, 0]
+                new_frame[201:230, 120:136][np.where(np.sum(car_frame[201:230, 120:136] == [76, 76, 76], axis=2) == 3)] = [76, 76, 76]
+                new_frame[201:230, 120:136][np.where(np.sum(car_frame[201:230, 120:136] == [0, 0, 0], axis=2) == 3)] = [0, 0, 0]
 
-            if curr_classif[0] is not None:
-                # Classifer
-                aux_frame = np.copy(new_frame)
-                aux_frame = np.transpose(aux_frame[:256, :, :], axes=[2, 0, 1])
-                aux_frame = (2 * (aux_frame / 255)) - 1
-                aux_frame = aux_frame[np.newaxis, :]
-                x = torch.from_numpy(aux_frame)
-                x = x.to(device=device, dtype=torch.float)
+                if curr_classif[0] is not None:
+                    # Classifer
+                    aux_frame = np.copy(new_frame)
+                    aux_frame = np.transpose(aux_frame[:256, :, :], axes=[2, 0, 1])
+                    aux_frame = (2 * (aux_frame / 255)) - 1
+                    aux_frame = aux_frame[np.newaxis, :]
+                    x = torch.from_numpy(aux_frame)
+                    x = x.to(device=device, dtype=torch.float)
 
-                if extra_commands[2]:
-                    new_frame = np.copy(new_frame)
-                    status_bar = new_frame[257:]
-                    new_frame = new_frame[:256, :256]/255
+                    if extra_commands[2]:
+                        new_frame = np.copy(new_frame)
+                        status_bar = new_frame[257:]
+                        new_frame = new_frame[:256, :256]/255
 
-                    gradCAm= cam(input_tensor=x, target_category=None)
-                    vis =show_cam_on_image(new_frame, gradCAm[0], use_rgb=True)
-                    new_frame = np.vstack((vis*255, status_bar))
+                        gradCAm= cam(input_tensor=x, target_category=None)
+                        vis =show_cam_on_image(new_frame, gradCAm[0], use_rgb=True)
+                        new_frame = np.vstack((vis*255, status_bar))
 
-                if accel_count == 0:
-                    pred = classifier(x)
-                    command = pred.argmax(axis=1).cpu().numpy()
+                    if accel_count == 0:
+                        pred = classifier(x)
+                        command = pred.argmax(axis=1).cpu().numpy()
 
-            fps = 1.0 / (time.time() - start_time)
-            while fps > 61:
                 fps = 1.0 / (time.time() - start_time)
+                while fps > 61:
+                    fps = 1.0 / (time.time() - start_time)
 
 
             if extra_commands[0]:
                         #show_stuff(win, frame, width, height, total_reward, fps, car, car_already_drown, steps, command=None, show_help=False, discrete=False, classf_name=None, save=False, helper=None)
-                frame = show_stuff(win, np.copy(new_frame), width, height, total_reward, fps, car, True, steps, style_state, command=a,show_help=True,  classf_name = curr_classif[1], save=True, helper =extra_commands, gcam_target=actual_class_tar[1] )
+                frame = show_stuff(win, np.copy(new_frame), width, height, total_reward, fps, car, True, steps, style_state, command=a,show_help=True,  classf_name = curr_classif[1], save=True, helper =extra_commands, gcam_target=actual_class_tar[1], comms = commands )
                 frames.append(frame)
             else:
-                show_stuff(win, np.copy(new_frame), width, height, total_reward, fps, car, True, steps, style_state, command=a, show_help=True, classf_name=curr_classif[1], helper =extra_commands, gcam_target=actual_class_tar[1])
+                show_stuff(win, np.copy(new_frame), width, height, total_reward, fps, car, True, steps, style_state, command=a, show_help=True, classf_name=curr_classif[1], helper =extra_commands, gcam_target=actual_class_tar[1], comms = commands)
 
             # if done or restart or isopen == False:
             if extra_commands[1]:
@@ -332,15 +336,15 @@ def main():
             else:
                 if done or broke or commands[1] or not commands[0]:
                     break
-        #  r_history = np.array(r_history)
-        # input_history = np.array(input_history)
-        # frames = np.array(frames)
-        # road_frames = np.array(road_frames)
+            #  r_history = np.array(r_history)
+            # input_history = np.array(input_history)
+            # frames = np.array(frames)
+            # road_frames = np.array(road_frames)
 
-        # if steps == 1000:
-        #     path = create_dir(run_name, repetition, now)
-        #     print("Run saved")
-        #     path_list.append(path)
+            # if steps == 1000:
+            #     path = create_dir(run_name, repetition, now)
+            #     print("Run saved")
+            #     path_list.append(path)
 
     if extra_commands[0]:
         print("Saving")
