@@ -363,8 +363,9 @@ class ConditionalCUTModel(BaseModel):
             loss = 1 - criterion(self.fake_E, self.real_E)
 
         # loss = criterion(torch.flatten(self.fake_E)[:,None], torch.flatten(self.real_E)[:,None])
-        if self.epoch <= self.edge_warmup:
-            loss = loss * (self.epoch / self.edge_warmup)
+        if self.edge_warmup > 0:
+            if self.epoch <= self.edge_warmup:
+                loss = loss * (self.epoch / self.edge_warmup)
 
         loss = Variable(loss, requires_grad=True)
         return loss
