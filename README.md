@@ -20,8 +20,6 @@ simulation/play_evaluation.py
 
 # Demo
 ## Complete driving (autonomous and per hand with different style transfers)
-
-
 https://user-images.githubusercontent.com/50120027/125075755-51c25e00-e0bf-11eb-909b-6ca3f73de86c.mp4
 
 
@@ -29,9 +27,7 @@ https://user-images.githubusercontent.com/50120027/125075755-51c25e00-e0bf-11eb-
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/50120027/125068879-49195a00-e0b6-11eb-9bde-81058f9dc6b0.gif)
 
 ## GradCAM and AD on different styles
-https://user-images.githubusercontent.com/50120027/126090528-86a70725-d44e-4e21-845d-53af0c9be1a5.mp4
-
-
+https://user-images.githubusercontent.com/50120027/126092797-0a77215f-a102-4581-8f25-225daf198880.mp4
 
 # Installation
 
