@@ -29,7 +29,7 @@ https://user-images.githubusercontent.com/50120027/125075755-51c25e00-e0bf-11eb-
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/50120027/125068879-49195a00-e0b6-11eb-9bde-81058f9dc6b0.gif)
 
 ## GradCAM and AD on different styles
-![GradCAM](https://user-images.githubusercontent.com/50120027/125065951-bd51fe80-e0b2-11eb-950a-38d7f2c4147b.gif)
+https://user-images.githubusercontent.com/50120027/126090528-86a70725-d44e-4e21-845d-53af0c9be1a5.mp4
 
 
 
